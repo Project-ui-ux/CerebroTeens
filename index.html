@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CerebroTeens - Serious Game Edukasi Stroke Remaja</title>
+  <meta name="description" content="Media Serious Game Edukasi Stroke pada Remaja: Teka-Teki Silang (TTS) dan Cari Kata (Word Search) dengan 4 Level Progresif dan Google Sheets Integration.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient background glow lights -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <div id="app">
+    <!-- TOP NAVIGATION BAR -->
+    <header class="top-navbar">
+      <div class="logo-area">
+        <div class="logo-icon">🧠</div>
+        <div class="logo-text">
+          <h1>CerebroTeens</h1>
+          <p>Serious Game Pencegahan Stroke Remaja</p>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <div class="badge-user" id="user-status-pill">
+          <span class="db-status offline" id="db-status-dot" title="Status Google Sheets"></span>
+          <span id="nav-user-name">Tamu</span>
+        </div>
+        <button class="btn-icon" id="btn-logout" title="Keluar Akun">🚪</button>
+      </div>
+    </header>
+
+    <!-- VIEWS CONTAINER -->
+    <main class="view-container">
+
+      <!-- ========================================================
+           SCREEN 1: DAFTAR & LOGIN KEMBALI
+           ======================================================== -->
+      <section id="view-login" class="view-screen active">
+        <div class="login-wrapper">
+          <div class="login-header">
+            <span class="badge">Instrumen Penelitian</span>
+            <h2>Identitas Partisipan</h2>
+            <p>Silakan isi data responden untuk memulai serious game edukasi stroke.</p>
+          </div>
+
+          <!-- TAB SWITCH: DAFTAR vs LOGIN KEMBALI -->
+          <div class="auth-tabs-nav">
+            <button type="button" class="auth-tab-btn active" id="tab-btn-register">
+              <span>📝 Daftar Baru</span>
+            </button>
+            <button type="button" class="auth-tab-btn" id="tab-btn-login">
+              <span>🔑 Login Kembali</span>
+            </button>
+          </div>
+
+          <!-- PANEL 1: DAFTAR BARU -->
+          <div class="auth-form-panel active" id="panel-register">
+            <form id="register-form">
+              <div class="form-group">
+                <label for="reg-nama">Nama Lengkap / Inisial Responden</label>
+                <input type="text" id="reg-nama" placeholder="Contoh: Budi Santoso" required autocomplete="name">
+              </div>
+
+              <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <label for="reg-usia">Usia (Tahun)</label>
+                  <input type="number" id="reg-usia" min="10" max="25" placeholder="Contoh: 16" required>
+                </div>
+                <div>
+                  <label for="reg-gender">Jenis Kelamin</label>
+                  <select id="reg-gender" required>
+                    <option value="">Pilih</option>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="reg-sekolah">Instansi / Sekolah / Kelas</label>
+                <input type="text" id="reg-sekolah" placeholder="Contoh: SMAN 1 Jakarta / XI IPA 2" required>
+              </div>
+
+              <button type="submit" class="btn-primary" id="btn-submit-register">
+                <span>Daftar & Mulai Game</span>
+                <span>➔</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- PANEL 2: LOGIN KEMBALI -->
+          <div class="auth-form-panel" id="panel-login">
+            <form id="login-form">
+              <div class="form-group">
+                <label for="login-id">ID Peserta atau Nama Lengkap</label>
+                <input type="text" id="login-id" placeholder="Masukkan ID (misal: R-1234) atau Nama" required>
+              </div>
+
+              <button type="submit" class="btn-primary" id="btn-submit-login">
+                <span>Masuk Kembali ke Game</span>
+                <span>➔</span>
+              </button>
+            </form>
+          </div>
+
+          <div class="research-info-box">
+            <strong>📋 Catatan Penelitian:</strong> Seluruh data identitas dan rekaman skor level akan dicatat secara otomatis ke dalam Google Sheet penelitian secara aman dan konfidensial.
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           SCREEN 2: DASHBOARD UTAMA (PILIHAN GAME)
+           ======================================================== -->
+      <section id="view-dashboard" class="view-screen">
+        <div class="hero-banner">
+          <div class="hero-content">
+            <h2>Pusat Edukasi Stroke Usia Muda</h2>
+            <p>Tingkatkan pemahamanmu mengenai anatomi otak, bahaya gaya hidup sedentary/vaping, deteksi dini metode FAST, dan pertolongan darurat golden period melalui dua mode serious game interaktif.</p>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-pill">
+              <div class="num" id="stat-tts-done">0/4</div>
+              <div class="label">TTS Selesai</div>
+            </div>
+            <div class="stat-pill">
+              <div class="num" id="stat-ws-done">0/4</div>
+              <div class="label">Cari Kata Selesai</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="games-selection-grid">
+          <!-- Game 1: Teka-Teki Silang -->
+          <div class="game-card">
+            <div class="game-card-icon icon-tts">✏️</div>
+            <h3>Teka-Teki Silang (TTS)</h3>
+            <p>Uji ketajaman pemahaman ilmiahmu tentang stroke dengan mengisi teka-teki silang mendatar & menurun.</p>
+            <div class="level-pills-row">
+              <span class="level-badge">4 Level</span>
+              <span class="level-badge">Fakta Medis</span>
+              <span class="level-badge">Poin Skor</span>
+            </div>
+            <button class="btn-primary" id="btn-play-tts">
+              <span>Mainkan TTS</span>
+              <span>🎮</span>
+            </button>
+          </div>
+
+          <!-- Game 2: Cari Kata -->
+          <div class="game-card">
+            <div class="game-card-icon icon-find">🔍</div>
+            <h3>Cari Kata (Word Search)</h3>
+            <p>Temukan istilah-istilah kritis seputar gaya hidup, sinyal bahaya klinis, dan mitigasi stroke di kisi matriks huruf.</p>
+            <div class="level-pills-row">
+              <span class="level-badge">4 Level</span>
+              <span class="level-badge">Petunjuk Klinis</span>
+              <span class="level-badge">Timer Cepat</span>
+            </div>
+            <button class="btn-primary" id="btn-play-wordsearch">
+              <span>Mainkan Cari Kata</span>
+              <span>🎮</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           SCREEN 3: PEMILIHAN LEVEL (4 LEVEL)
+           ======================================================== -->
+      <section id="view-level-select" class="view-screen">
+        <div class="back-btn-row">
+          <button class="btn-back" id="btn-back-to-dash">← Kembali ke Menu Utama</button>
+        </div>
+        <div>
+          <h2 id="level-selector-title" style="font-size: 1.6rem; margin-bottom: 4px;">Pilih Level</h2>
+          <p id="level-selector-desc" style="color: #94a3b8; font-size: 0.95rem;">Tiap level merepresentasikan modul pembelajaran yang berbeda.</p>
+        </div>
+
+        <div class="level-grid" id="level-cards-container">
+          <!-- Diisi dinamis oleh Javascript -->
+        </div>
+      </section>
+
+      <!-- ========================================================
+           SCREEN 4: ARENA PERMAINAN TTS
+           ======================================================== -->
+      <section id="view-tts-game" class="view-screen">
+        <div class="back-btn-row">
+          <button class="btn-back" id="btn-back-to-levels">← Kembali ke Pilihan Level</button>
+        </div>
+
+        <div class="game-header-bar">
+          <div class="game-title-info">
+            <h3 id="tts-level-title">TTS Level 1</h3>
+            <p id="tts-level-subtitle">Deskripsi Modul</p>
+          </div>
+          <div class="game-live-stats">
+            <div class="hud-item" id="tts-timer-box">
+              <span>⏳ Sisa Waktu:</span>
+              <strong id="tts-timer">03:00</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-layout-split">
+          <!-- TTS Board -->
+          <div>
+            <div class="board-container">
+              <div id="tts-grid-board" class="tts-grid"></div>
+            </div>
+            <div class="fact-banner-box" id="tts-fact-badge">
+              💡 Fakta Medis Penting
+            </div>
+            <div class="game-controls-row">
+              <button class="btn-secondary" id="btn-reset-tts">↺ Ulangi Level</button>
+              <button class="btn-primary" id="btn-check-tts" style="flex: 2;">✓ Periksa Jawaban & Simpan</button>
+            </div>
+          </div>
+
+          <!-- TTS Clues List -->
+          <div class="clues-panel">
+            <div>
+              <div class="clues-section-title">👉 Mendatar (Across)</div>
+              <div id="tts-clues-across" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
+            </div>
+            <div>
+              <div class="clues-section-title">👇 Menurun (Down)</div>
+              <div id="tts-clues-down" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           SCREEN 5: ARENA PERMAINAN CARI KATA (WORD SEARCH)
+           ======================================================== -->
+      <section id="view-wordsearch-game" class="view-screen">
+        <div class="back-btn-row">
+          <button class="btn-back" id="btn-back-to-levels-ws">← Kembali ke Pilihan Level</button>
+        </div>
+
+        <div class="game-header-bar">
+          <div class="game-title-info">
+            <h3 id="ws-level-title">Cari Kata Level 1</h3>
+            <p id="ws-level-subtitle">Deskripsi Modul</p>
+          </div>
+          <div class="game-live-stats">
+            <div class="hud-item">
+              <span>🎯 Ditemukan:</span>
+              <strong id="ws-found-count">0/5</strong>
+            </div>
+            <div class="hud-item" id="ws-timer-box">
+              <span>⏳ Sisa Waktu:</span>
+              <strong id="ws-timer">03:00</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-layout-split">
+          <!-- Word Search Board -->
+          <div>
+            <div class="board-container">
+              <div id="ws-grid-board" class="wordsearch-grid"></div>
+            </div>
+            <div class="fact-banner-box" id="ws-fact-badge">
+              💡 Fakta Medis Penting
+            </div>
+            <div class="game-controls-row">
+              <button class="btn-secondary" id="btn-reset-ws">↺ Acak Huruf</button>
+            </div>
+          </div>
+
+          <!-- Target Words Panel -->
+          <div class="clues-panel">
+            <div class="clues-section-title">📋 Daftar Kata yang Dicari:</div>
+            <p style="font-size:0.75rem; color:#94a3b8;">Klik atau seret huruf pertama ke huruf terakhir (horizontal, vertikal, atau diagonal).</p>
+            <div class="target-word-list" id="ws-words-list"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MODAL POPUP SELESAI LEVEL -->
+    <div class="modal-overlay" id="success-modal">
+      <div class="modal-card">
+        <div class="modal-icon-badge">🎉</div>
+        <h3 id="modal-title">Level Berhasil Diselesaikan!</h3>
+        <p id="modal-message">Pemahaman Anda mengenai materi ini sangat baik.</p>
+
+        <div class="score-summary-grid">
+          <div class="score-box-item">
+            <div class="val" id="modal-score">100</div>
+            <div class="lbl">Skor Akhir</div>
+          </div>
+          <div class="score-box-item">
+            <div class="val" id="modal-time">01:15</div>
+            <div class="lbl">Durasi Selesai</div>
+          </div>
+        </div>
+
+        <div class="education-takeaway" id="modal-takeaway">
+          Poin Edukasi: Jangan abaikan tanda bahaya stroke!
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="btn-primary" id="btn-modal-next">Lanjut ke Level Berikutnya →</button>
+          <button class="btn-secondary" id="btn-modal-menu" style="background:#f1f5f9; color:#1e293b; border-color:#cbd5e1;">📋 Kembali ke Menu Level</button>
+          <button class="btn-secondary" id="btn-modal-home" style="background:#e0e7ff; color:#3730a3; border-color:#c7d2fe;">🏠 Kembali ke Home</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL POPUP WAKTU HABIS (TIMEOUT) -->
+    <div class="modal-overlay" id="timeout-modal">
+      <div class="modal-card">
+        <div class="modal-icon-badge" style="background: linear-gradient(135deg, #ef4444, #f59e0b); box-shadow: 0 10px 20px rgba(239, 68, 68, 0.35);">⏰</div>
+        <h3 id="timeout-title" style="color: #ef4444;">Waktu Habis!</h3>
+        <p id="timeout-message">Jatah waktu pada level ini telah habis. Stroke butuh penanganan secepat mungkin (Time is Brain!). Ayo asah kecepatanmu lagi!</p>
+
+        <div class="score-summary-grid">
+          <div class="score-box-item">
+            <div class="val" id="timeout-score">0</div>
+            <div class="lbl">Skor Diperoleh</div>
+          </div>
+          <div class="score-box-item">
+            <div class="val" id="timeout-solved">0</div>
+            <div class="lbl">Kata Terselesaikan</div>
+          </div>
+        </div>
+
+        <div class="education-takeaway" id="timeout-takeaway" style="background: #fef2f2; border-left-color: #ef4444; color: #991b1b;">
+          Poin Medis: Pada kondisi stroke, jutaan sel saraf mati setiap menit keterlambatan. Kecepatan tindakan sangat penting!
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="btn-primary" id="btn-timeout-retry" style="background: linear-gradient(135deg, #ef4444, #f59e0b);">↺ Coba Lagi Level Ini</button>
+          <button class="btn-secondary" id="btn-timeout-menu" style="background:#f1f5f9; color:#1e293b; border-color:#cbd5e1;">📋 Kembali ke Menu Level</button>
+          <button class="btn-secondary" id="btn-timeout-home" style="background:#e0e7ff; color:#3730a3; border-color:#c7d2fe;">🏠 Kembali ke Home</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data-stroke.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
