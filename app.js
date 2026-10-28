@@ -49,6 +49,7 @@ const AppState = {
 // INISIALISASI SAAT HALAMAN DIBUKA
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
   initUserSession();
   setupEventListeners();
   updateUIBadges();
@@ -107,6 +108,38 @@ function showToast(msg, isSuccess = true) {
 }
 
 // ==========================================
+// PENGATURAN TEMA SIANG & MALAM (LIGHT / DARK)
+// ==========================================
+function initTheme() {
+  const savedTheme = localStorage.getItem("cerebro_theme") || "dark";
+  applyTheme(savedTheme);
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const btn = document.getElementById("btn-theme-toggle");
+  if (btn) {
+    if (theme === "light") {
+      btn.textContent = "☀️";
+      btn.title = "Beralih ke Mode Malam";
+      btn.setAttribute("aria-label", "Beralih ke Mode Malam");
+    } else {
+      btn.textContent = "🌙";
+      btn.title = "Beralih ke Mode Siang";
+      btn.setAttribute("aria-label", "Beralih ke Mode Siang");
+    }
+  }
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  const newTheme = currentTheme === "light" ? "dark" : "light";
+  applyTheme(newTheme);
+  localStorage.setItem("cerebro_theme", newTheme);
+  showToast(newTheme === "light" ? "Mode Siang diaktifkan ☀️" : "Mode Malam diaktifkan 🌙");
+}
+
+// ==========================================
 // EVENT LISTENERS & NAVIGASI
 // ==========================================
 function setupEventListeners() {
@@ -142,6 +175,12 @@ function setupEventListeners() {
   const loginForm = document.getElementById("login-form");
   if (loginForm) {
     loginForm.addEventListener("submit", handleLoginSubmit);
+  }
+
+  // Tombol Mode Siang & Malam (Theme Toggle)
+  const btnThemeToggle = document.getElementById("btn-theme-toggle");
+  if (btnThemeToggle) {
+    btnThemeToggle.addEventListener("click", toggleTheme);
   }
 
   // Tombol Logout / Keluar Sesi
